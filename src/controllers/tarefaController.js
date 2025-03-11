@@ -1,4 +1,5 @@
 import tarefaModel from "../models/tarefaModel.js";
+
 class TarefaController {
   getAll = async (req, res) => {
     try {
@@ -9,13 +10,22 @@ class TarefaController {
       res.status(500).json({ erro: "Erro ao buscar tarefas" });
     }
   };
-  create = ({ body: { descricao } }, res) => {
-    if (!descricao) {
-      return res.status(400).json({ erro: "Descrição é obrigatória" });
+
+  create = async (req, res) => {
+    try {
+      const { descricao } = req.body;
+      if (!descricao) {
+        return res.status(400).json({ erro: "Descrição é obrigatória" });
+      }
+  
+      const novaTarefa = await tarefaModel.create(descricao);
+      res.status(201).json(novaTarefa);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ erro: "Erro ao criar tarefa" });
     }
-    const novaTarefa = tarefaModel.create(descricao);
-    res.status(201).json(novaTarefa);
   };
+
   update = ({ params: { id }, body: { concluida } }, res) => {
     const tarefaAtualizada = tarefaModel.update(id, concluida);
     if (!tarefaAtualizada) {
